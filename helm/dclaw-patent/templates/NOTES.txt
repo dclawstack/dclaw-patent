@@ -1,0 +1,4 @@
+DClaw Patent deployed!
+
+Frontend: http://dclaw-patent.local
+Backend API: http://dclaw-patent-backend:8140

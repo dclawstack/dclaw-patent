@@ -1,0 +1,26 @@
+replicaCount: 1
+
+frontend:
+  image:
+    repository: dclaw-patent-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3054
+  ingress:
+    enabled: false
+
+backend:
+  image:
+    repository: dclaw-patent-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8140
+  env:
+    PATENT_DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/dclaw_patent"
+
+database:
+  name: dclaw_patent
