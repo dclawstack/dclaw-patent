@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import init_db
+from app.core.errors import register_exception_handlers
+from app.core.validators import SecurityHeaders
 from app.api.routes import health
 
 
@@ -19,6 +21,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    """Add security headers to all responses."""
+    response = await call_next(request)
+    for header, value in SecurityHeaders.get_headers().items():
+        response.headers[header] = value
+    return response
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,6 +36,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register exception handlers
+register_exception_handlers(app)
 
 app.include_router(health.router, prefix="/health", tags=["health"])
 
