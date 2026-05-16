@@ -38,6 +38,10 @@ async def create_patent(
     text_for_embedding = f"{patent_data.get('title', '')} {patent_data.get('abstract', '')}"
     from app.services.patent_search import generate_embedding
     patent_data["embedding"] = await generate_embedding(text_for_embedding)
+    # Auto-tag if not provided
+    if not patent_data.get("technology_category"):
+        from app.services.auto_tag import auto_tag_technology
+        patent_data["technology_category"] = auto_tag_technology(text_for_embedding)
     patent = Patent(**patent_data)
     created = await repo.create(patent)
     return created

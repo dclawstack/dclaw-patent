@@ -6,12 +6,14 @@ import Link from "next/link";
 import { getPatent, getDockets, getPriorArts } from "@/lib/api";
 import { Patent, DocketEvent, PriorArt } from "@/types";
 import AiCopilotPanel from "@/components/patent/AiCopilotPanel";
+import AddDocketForm from "@/components/docket/AddDocketForm";
+import AddPriorArtForm from "@/components/patent/AddPriorArtForm";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   drafted: "bg-gray-500",
@@ -29,6 +31,24 @@ export default function PatentDetailPage() {
   const [dockets, setDockets] = useState<DocketEvent[]>([]);
   const [priorArts, setPriorArts] = useState<PriorArt[]>([]);
   const [loading, setLoading] = useState(true);
+
+  async function loadDockets() {
+    try {
+      const d = await getDockets({ patent_id: id });
+      setDockets(d.items);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function loadPriorArts() {
+    try {
+      const pa = await getPriorArts({ patent_id: id });
+      setPriorArts(pa.items);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -68,6 +88,12 @@ export default function PatentDetailPage() {
             <p className="text-sm text-gray-500">{patent.patent_number}</p>
           </div>
           <Badge className={`${statusColors[patent.status]} text-white`}>{patent.status}</Badge>
+          <Button variant="outline" size="sm">
+            <Link href={`/patents/${id}/edit`} className="flex items-center gap-1">
+              <Pencil className="h-3 w-3" />
+              Edit
+            </Link>
+          </Button>
         </div>
 
         <Tabs defaultValue="overview">
@@ -150,7 +176,8 @@ export default function PatentDetailPage() {
           </TabsContent>
 
           <TabsContent value="docket" className="mt-4">
-            <Card>
+            <AddDocketForm patentId={id} onCreated={loadDockets} />
+            <Card className="mt-4">
               <CardHeader className="flex items-center justify-between">
                 <CardTitle>Docket Events</CardTitle>
               </CardHeader>
@@ -190,7 +217,8 @@ export default function PatentDetailPage() {
           </TabsContent>
 
           <TabsContent value="prior-art" className="mt-4">
-            <Card>
+            <AddPriorArtForm patentId={id} onCreated={loadPriorArts} />
+            <Card className="mt-4">
               <CardHeader className="flex items-center justify-between">
                 <CardTitle>Prior Art</CardTitle>
               </CardHeader>

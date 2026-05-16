@@ -60,6 +60,22 @@ export interface PriorArtList {
   offset: number;
 }
 
+export interface CompetitorWatch {
+  id: string;
+  company_name: string;
+  technology_keywords?: string[];
+  last_scan_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompetitorWatchList {
+  items: CompetitorWatch[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export interface PatentSearchResult {
   id?: string;
   patent_number?: string;

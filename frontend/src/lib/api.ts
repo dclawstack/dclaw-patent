@@ -1,4 +1,4 @@
-import { Patent, PatentList, DocketEvent, DocketAlerts, PriorArt, PriorArtList, PatentSearchResponse, PatentSearchResult, DraftClaimsResponse, ExaminerPrediction } from "@/types";
+import { Patent, PatentList, DocketEvent, DocketAlerts, PriorArt, PriorArtList, PatentSearchResponse, PatentSearchResult, DraftClaimsResponse, ExaminerPrediction, CompetitorWatch, CompetitorWatchList } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -127,6 +127,34 @@ export async function aiDraftClaims(description: string, numClaims = 5): Promise
 
 export async function aiExaminerPrediction(patentId: string): Promise<ExaminerPrediction> {
   return fetchJson<ExaminerPrediction>(`/api/v1/ai/examiner-prediction/${patentId}`, { method: "POST" });
+}
+
+// Competitors
+export async function getCompetitors(params?: { limit?: number; offset?: number }): Promise<CompetitorWatchList> {
+  const search = new URLSearchParams();
+  if (params?.limit) search.set("limit", String(params.limit));
+  if (params?.offset) search.set("offset", String(params.offset));
+  return fetchJson<CompetitorWatchList>(`/api/v1/competitors?${search.toString()}`);
+}
+
+export async function createCompetitor(data: Omit<CompetitorWatch, "id" | "created_at" | "updated_at" | "last_scan_date">): Promise<CompetitorWatch> {
+  return fetchJson<CompetitorWatch>("/api/v1/competitors", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function getCompetitor(id: string): Promise<CompetitorWatch> {
+  return fetchJson<CompetitorWatch>(`/api/v1/competitors/${id}`);
+}
+
+export async function updateCompetitor(id: string, data: Partial<Omit<CompetitorWatch, "id" | "created_at" | "updated_at">>): Promise<CompetitorWatch> {
+  return fetchJson<CompetitorWatch>(`/api/v1/competitors/${id}`, { method: "PUT", body: JSON.stringify(data) });
+}
+
+export async function deleteCompetitor(id: string): Promise<void> {
+  return fetchJson<void>(`/api/v1/competitors/${id}`, { method: "DELETE" });
+}
+
+export async function getCompetitorFilings(id: string): Promise<{ company_name: string; query: string; results: PatentSearchResult[]; total: number }> {
+  return fetchJson(`/api/v1/competitors/${id}/filings`);
 }
 
 export { ApiError };

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertTriangle, Calendar, FileText, Globe, Clock } from "lucide-react";
+import { AlertTriangle, Calendar, FileText, Globe, Clock, Search, Shield } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   drafted: "bg-gray-500",
@@ -62,9 +62,23 @@ export default function PortfolioDashboard() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Patent Portfolio</h1>
             <p className="text-sm text-gray-500 mt-1">Manage your intellectual property estate</p>
           </div>
-          <Button>
-            <Link href="/patents/new" className="flex items-center">Add Patent</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">
+              <Link href="/search" className="flex items-center gap-1">
+                <Search className="h-4 w-4" />
+                Search
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm">
+              <Link href="/competitors" className="flex items-center gap-1">
+                <Shield className="h-4 w-4" />
+                Competitors
+              </Link>
+            </Button>
+            <Button size="sm">
+              <Link href="/patents/new">Add Patent</Link>
+            </Button>
+          </div>
         </div>
 
         {/* Summary Cards */}

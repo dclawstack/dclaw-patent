@@ -5,8 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.routes import health
-from app.api.v1 import patents_router, dockets_router, prior_art_router
+from app.api.v1 import patents_router, dockets_router, prior_art_router, competitors_router
 from app.api.v1.ai import router as ai_router
+from app.api.v1.competitors import router as competitors_router
 
 
 @asynccontextmanager
@@ -34,3 +35,4 @@ app.include_router(patents_router, prefix="/api/v1/patents", tags=["patents"])
 app.include_router(dockets_router, prefix="/api/v1/dockets", tags=["dockets"])
 app.include_router(prior_art_router, prefix="/api/v1/prior-art", tags=["prior-art"])
 app.include_router(ai_router, prefix="/api/v1/ai", tags=["ai"])
+app.include_router(competitors_router, prefix="/api/v1/competitors", tags=["competitors"])
