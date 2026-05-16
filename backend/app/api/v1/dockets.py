@@ -1,8 +1,10 @@
 from typing import Optional
 from uuid import UUID, uuid4
-from datetime import date
+from datetime import date, datetime, timedelta
+from io import StringIO
 
 from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
@@ -50,9 +52,13 @@ async def list_dockets(
     limit: int = Query(20, ge=1, le=100),
     status: Optional[DocketStatus] = None,
     jurisdiction: Optional[str] = None,
+    patent_id: Optional[UUID] = None,
+    event_type: Optional[DocketEventType] = None,
+    due_date_from: Optional[date] = None,
+    due_date_to: Optional[date] = None,
     session: AsyncSession = Depends(get_session),
 ) -> list[Docket]:
-    """List dockets with filters."""
+    """List dockets with filters (status, jurisdiction, patent, event type, date range)."""
     query = select(Docket)
 
     if status:
@@ -61,7 +67,19 @@ async def list_dockets(
     if jurisdiction:
         query = query.where(Docket.jurisdiction == jurisdiction)
 
-    query = query.offset(skip).limit(limit)
+    if patent_id:
+        query = query.where(Docket.patent_id == patent_id)
+
+    if event_type:
+        query = query.where(Docket.event_type == event_type)
+
+    if due_date_from:
+        query = query.where(Docket.due_date >= due_date_from)
+
+    if due_date_to:
+        query = query.where(Docket.due_date <= due_date_to)
+
+    query = query.offset(skip).limit(limit).order_by(Docket.due_date)
     result = await session.execute(query)
     return result.scalars().all()
 
@@ -141,6 +159,133 @@ async def get_overdue_dockets(
     )
     result = await session.execute(query)
     return result.scalars().all()
+
+
+@router.get("/upcoming", response_model=list[DocketResponse])
+async def get_upcoming_dockets(
+    days_ahead: int = Query(30, ge=1, le=365),
+    session: AsyncSession = Depends(get_session),
+) -> list[Docket]:
+    """Get dockets due in the next N days (for urgency color-coding)."""
+    today = date.today()
+    future_date = today + timedelta(days=days_ahead)
+    query = select(Docket).where(
+        and_(
+            Docket.due_date >= today,
+            Docket.due_date <= future_date,
+            Docket.status != DocketStatus.COMPLETED,
+        )
+    ).order_by(Docket.due_date)
+    result = await session.execute(query)
+    return result.scalars().all()
+
+
+@router.post("/{docket_id}/mark-complete")
+async def mark_docket_complete(
+    docket_id: UUID,
+    session: AsyncSession = Depends(get_session),
+) -> DocketResponse:
+    """Mark docket as completed."""
+    result = await session.execute(select(Docket).where(Docket.id == docket_id))
+    db_docket = result.scalar_one_or_none()
+    if not db_docket:
+        raise HTTPException(status_code=404, detail="Docket not found")
+
+    db_docket.status = DocketStatus.COMPLETED
+    await session.commit()
+    await session.refresh(db_docket)
+    return db_docket
+
+
+@router.post("/{docket_id}/mark-pending")
+async def mark_docket_pending(
+    docket_id: UUID,
+    session: AsyncSession = Depends(get_session),
+) -> DocketResponse:
+    """Mark docket as pending (reopen)."""
+    result = await session.execute(select(Docket).where(Docket.id == docket_id))
+    db_docket = result.scalar_one_or_none()
+    if not db_docket:
+        raise HTTPException(status_code=404, detail="Docket not found")
+
+    db_docket.status = DocketStatus.PENDING
+    await session.commit()
+    await session.refresh(db_docket)
+    return db_docket
+
+
+@router.get("/export/csv")
+async def export_dockets_csv(
+    status: Optional[DocketStatus] = None,
+    jurisdiction: Optional[str] = None,
+    session: AsyncSession = Depends(get_session),
+):
+    """Export dockets to CSV format."""
+    query = select(Docket)
+
+    if status:
+        query = query.where(Docket.status == status)
+
+    if jurisdiction:
+        query = query.where(Docket.jurisdiction == jurisdiction)
+
+    query = query.order_by(Docket.due_date)
+    result = await session.execute(query)
+    dockets = result.scalars().all()
+
+    csv_data = StringIO()
+    csv_data.write("Patent ID,Event Type,Due Date,Jurisdiction,Status,Description,Created At\n")
+
+    for docket in dockets:
+        csv_data.write(
+            f"{docket.patent_id},{docket.event_type},{docket.due_date},"
+            f"{docket.jurisdiction},{docket.status},{docket.description or ''},\"{docket.created_at}\"\n"
+        )
+
+    return StreamingResponse(
+        iter([csv_data.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=dockets_export.csv"},
+    )
+
+
+@router.get("/export/ical")
+async def export_dockets_ical(
+    status: Optional[DocketStatus] = None,
+    jurisdiction: Optional[str] = None,
+    session: AsyncSession = Depends(get_session),
+):
+    """Export dockets to iCalendar format."""
+    query = select(Docket)
+
+    if status:
+        query = query.where(Docket.status == status)
+
+    if jurisdiction:
+        query = query.where(Docket.jurisdiction == jurisdiction)
+
+    query = query.order_by(Docket.due_date)
+    result = await session.execute(query)
+    dockets = result.scalars().all()
+
+    ical_data = StringIO()
+    ical_data.write("BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//DClaw Patent//docket-export//EN\n")
+
+    for docket in dockets:
+        due_date_str = docket.due_date.isoformat().replace("-", "")
+        ical_data.write(
+            f"BEGIN:VEVENT\nDTSTART:{due_date_str}\n"
+            f"DTEND:{due_date_str}\nSUMMARY:{docket.event_type} - Patent {docket.patent_id}\n"
+            f"DESCRIPTION:{docket.description or 'Docket event'}\nUID:{docket.id}\nEND:VEVENT\n"
+        )
+
+    ical_data.write("END:VCALENDAR\n")
+
+    return StreamingResponse(
+        iter([ical_data.getvalue()]),
+        media_type="text/calendar",
+        headers={"Content-Disposition": "attachment; filename=dockets_export.ics"},
+    )
 
 
 @router.post("/calculate-deadlines")
