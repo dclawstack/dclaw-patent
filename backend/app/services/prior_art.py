@@ -63,6 +63,20 @@ class PriorArtAnalyzer:
     """Analyze prior art for relevance and blocking potential."""
 
     @staticmethod
+    async def search_blocking_patents(
+        product_description: str,
+        technology_areas: list[str] = None,
+    ) -> list[dict]:
+        """Search for patents that might block a product."""
+        # Search using product description and tech areas
+        blocking = await PatentSearchService.search_combined(
+            query=product_description,
+            jurisdictions=["US"],
+            limit=10,
+        )
+        return blocking
+
+    @staticmethod
     def analyze_similarity(claims_1: str, claims_2: str) -> dict:
         """Compare claims for similarity (stub for MVP)."""
         # TODO: Implement embeddings-based similarity
