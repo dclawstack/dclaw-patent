@@ -293,3 +293,7 @@ You are the Project Lead for building {APP_NAME}.
 4. **Commit frequently** — agents should commit after every major task
 5. **Use branches** — never let parallel agents commit directly to main
 6. **Share anti-patterns** — when an agent discovers a new bug pattern, update AGENTS.md in the scaffold
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

@@ -42,3 +42,7 @@ kubectl exec -n dclaw-patent deployment/dclaw-patent-backend --   python -c "imp
 1. Verify backend pod is running
 2. Check ingress configuration
 3. Verify `NEXT_PUBLIC_API_URL` is set correctly
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

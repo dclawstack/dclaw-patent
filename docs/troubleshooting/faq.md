@@ -46,3 +46,7 @@ cd dclaw-patent/backend && uvicorn dclaw_patent.main:app --reload
 ## Support
 
 For issues not covered here, check the [DClaw Platform Troubleshooting Guide](../../ecosystem/troubleshooting).
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

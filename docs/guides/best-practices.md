@@ -23,3 +23,7 @@
 - Test upgrades in a staging environment first
 - Read the [changelog](../releases/changelog) before upgrading
 - Keep the app within one major version of the platform
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

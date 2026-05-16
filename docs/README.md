@@ -21,3 +21,7 @@ DClaw Patent is part of the DClaw Platform — a unified AI app ecosystem runnin
 ## Support
 
 For platform-level issues, see the [DClaw Platform Documentation](https://docs.dclawstack.io).
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

@@ -203,3 +203,7 @@ DClaw Patent's v1.2 roadmap is **strong on core IP management** (portfolio track
 - [IP Management Software Market 2035](https://www.marketresearchfuture.com/reports/patent-management-software-market-29391)
 - [Best AI Patent Drafting Tools 2025](https://www.solveintelligence.com/blog/post/best-ai-patent-drafting-tools)
 - [PatSnap Competitive Analysis](https://www.patsnap.com/resources/blog/articles/top-7-ip-analytics-tools-for-lawyers-in-2026/)
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

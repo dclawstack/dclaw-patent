@@ -29,3 +29,7 @@ _(None yet — first PLAN-v1.3 rollup will list what was folded in.)_
 - `dclaw-platform/agents/` — per-role agent prompts
 - `dclaw-platform/agents/swarm-dispatch/` — per-app build-prompt dispatcher
 - `scaffold-sync.sh` (this hub root) — propagate patches into `dclaw-*` repos
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

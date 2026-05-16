@@ -49,3 +49,7 @@ EOF
 kubectl get pods -n dclaw-patent
 kubectl get ingress -n dclaw-patent
 ```
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

@@ -93,3 +93,7 @@ kubectl delete -f ~/DClaw-Stack/dclaw-platform/services/postgres/postgres-shared
 Per the org rule, `AGENTS.md` and `PLAN-v1.2.md` are immutable in place. New infra guidance ships as a dated patch file like this one. When this convention proves stable (no further churn, all 7 apps actually using it), it gets folded into `PLAN-v1.3.md` and this file retires.
 
 **Related:** `dclaw-platform/services/postgres/postgres-shared.yaml` (the manifest this patch documents).
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

@@ -182,3 +182,7 @@ Available components:
 | dclaw-vendor | 8106 | 3019 | dclaw_vendor |
 | dclaw-doc | 8107 | 3020 | dclaw_doc |
 | dclaw-calendar | 8108 | 3021 | dclaw_calendar |
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

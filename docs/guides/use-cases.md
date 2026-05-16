@@ -21,3 +21,7 @@ Generate reports and analyze trends using natural language queries.
 - **Startups:** Rapid deployment without dedicated DevOps
 - **Enterprise:** On-premise compliance and SSO integration
 - **Agencies:** White-label solutions for client projects
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

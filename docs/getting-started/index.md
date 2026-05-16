@@ -25,3 +25,7 @@ DClaw Patent — Patent search and analysis
 - GDPR-compliant data handling
 - eDiscovery-ready exports
 
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

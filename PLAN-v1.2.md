@@ -96,3 +96,7 @@
 2. **Week 3–4:** Docketing (P0.3) + Portfolio Dashboard (P0.4)
 3. **Week 5–6:** Claim Drafting AI (P1.5) + Landscape Mapping (P1.6)
 4. **Week 7–8:** Disclosure Workflow (P1.7) + Competitive Intel (P1.8)
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

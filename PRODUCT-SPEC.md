@@ -223,3 +223,7 @@ DELETE /api/v1/comments/{id}        → Delete comment
 - Patent API integrations: USPTO PatentsView, EPO Open Patent Services, WIPO
 - Async jobs for long-running AI tasks (Celery + Redis)
 - No mock data — everything persisted to PostgreSQL + vector store
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active

@@ -33,3 +33,7 @@ DClaw Patent follows the standard DClaw app architecture:
 - **Orchestration:** Kubernetes via DClaw Operator
 - **Database:** CloudNativePG
 - **Ingress:** nginx-ingress + cert-manager
+
+---
+> **Document Owner:** Udai Kiran | **Email:** udai.kiran@oneconvergence.com
+> **Last Modified:** 2026-05-16 | **Admin Tracking:** Active
