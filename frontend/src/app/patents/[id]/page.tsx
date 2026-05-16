@@ -5,12 +5,13 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getPatent, getDockets, getPriorArts } from "@/lib/api";
 import { Patent, DocketEvent, PriorArt } from "@/types";
+import AiCopilotPanel from "@/components/patent/AiCopilotPanel";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, FileText, Calendar, Search } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   drafted: "bg-gray-500",
@@ -226,6 +227,7 @@ export default function PatentDetailPage() {
             </Card>
           </TabsContent>
         </Tabs>
+        <AiCopilotPanel patentId={patent.id} description={patent.description || patent.abstract} />
       </div>
     </main>
   );

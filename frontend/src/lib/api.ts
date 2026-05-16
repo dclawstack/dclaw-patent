@@ -1,4 +1,4 @@
-import { Patent, PatentList, DocketEvent, DocketAlerts, PriorArt, PriorArtList } from "@/types";
+import { Patent, PatentList, DocketEvent, DocketAlerts, PriorArt, PriorArtList, PatentSearchResponse, PatentSearchResult, DraftClaimsResponse, ExaminerPrediction } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -104,6 +104,29 @@ export async function updatePriorArt(id: string, data: Partial<Omit<PriorArt, "i
 
 export async function deletePriorArt(id: string): Promise<void> {
   return fetchJson<void>(`/api/v1/prior-art/${id}`, { method: "DELETE" });
+}
+
+// AI
+export async function aiPatentSearch(query: string, limit = 20): Promise<PatentSearchResponse> {
+  return fetchJson<PatentSearchResponse>("/api/v1/ai/patent-search", {
+    method: "POST",
+    body: JSON.stringify({ query, limit }),
+  });
+}
+
+export async function aiSimilarPatents(patentId: string): Promise<{ patent_id: string; results: PatentSearchResult[] }> {
+  return fetchJson(`/api/v1/ai/similar-patents/${patentId}`, { method: "POST" });
+}
+
+export async function aiDraftClaims(description: string, numClaims = 5): Promise<DraftClaimsResponse> {
+  return fetchJson<DraftClaimsResponse>("/api/v1/ai/draft-claims", {
+    method: "POST",
+    body: JSON.stringify({ invention_description: description, num_claims: numClaims }),
+  });
+}
+
+export async function aiExaminerPrediction(patentId: string): Promise<ExaminerPrediction> {
+  return fetchJson<ExaminerPrediction>(`/api/v1/ai/examiner-prediction/${patentId}`, { method: "POST" });
 }
 
 export { ApiError };

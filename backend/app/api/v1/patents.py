@@ -34,7 +34,11 @@ async def create_patent(
     existing = await repo.get_by_patent_number(data.patent_number)
     if existing:
         raise HTTPException(status_code=409, detail="Patent number already exists")
-    patent = Patent(**data.model_dump())
+    patent_data = data.model_dump()
+    text_for_embedding = f"{patent_data.get('title', '')} {patent_data.get('abstract', '')}"
+    from app.services.patent_search import generate_embedding
+    patent_data["embedding"] = await generate_embedding(text_for_embedding)
+    patent = Patent(**patent_data)
     created = await repo.create(patent)
     return created
 
@@ -59,8 +63,14 @@ async def update_patent(
     patent = await repo.get_by_id(patent_id)
     if not patent:
         raise HTTPException(status_code=404, detail="Patent not found")
-    for field, value in data.model_dump(exclude_unset=True).items():
+    update_data = data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
         setattr(patent, field, value)
+    # Re-generate embedding if title/abstract changed
+    if "title" in update_data or "abstract" in update_data:
+        text_for_embedding = f"{patent.title} {patent.abstract}"
+        from app.services.patent_search import generate_embedding
+        patent.embedding = await generate_embedding(text_for_embedding)
     await repo.db.commit()
     await repo.db.refresh(patent)
     return patent

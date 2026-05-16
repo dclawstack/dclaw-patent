@@ -59,3 +59,40 @@ export interface PriorArtList {
   limit: number;
   offset: number;
 }
+
+export interface PatentSearchResult {
+  id?: string;
+  patent_number?: string;
+  title?: string;
+  abstract?: string;
+  status?: string;
+  jurisdiction?: string;
+  relevance_score?: number;
+  distance?: number;
+  source: string;
+  date?: string;
+}
+
+export interface PatentSearchResponse {
+  query: string;
+  results: PatentSearchResult[];
+  total: number;
+}
+
+export interface DraftedClaim {
+  claim_number: number;
+  claim_text: string;
+}
+
+export interface DraftClaimsResponse {
+  claims: DraftedClaim[];
+  notes: string;
+}
+
+export interface ExaminerPrediction {
+  patent_id: string;
+  allowance_probability: number;
+  confidence: number;
+  suggested_amendments: string[];
+  factors: string[];
+}

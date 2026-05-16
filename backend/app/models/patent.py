@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, timezone
 from typing import Optional, List
-from sqlalchemy import String, Text, Date, DateTime, ForeignKey, JSON, Enum, func
+from sqlalchemy import String, Text, DateTime, ForeignKey, JSON, Enum, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from pgvector.sqlalchemy import Vector
 from app.models.base import Base
 
 
@@ -26,6 +27,7 @@ class Patent(Base):
     inventors: Mapped[Optional[List[str]]] = mapped_column(JSON, nullable=True, default=list)
     technology_category: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     jurisdiction: Mapped[str] = mapped_column(String(16), nullable=False, default="US")
+    embedding: Mapped[Optional[List[float]]] = mapped_column(Vector(768), nullable=True)
     extra_metadata: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
