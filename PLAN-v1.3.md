@@ -1,267 +1,557 @@
-# DClaw Patent — v1.3 Strategic Product Roadmap & Implementation Plan
+# DClaw Patent — v1.3 Comprehensive Roadmap
 
-> **Date:** 2026-05-16
-> **Status:** Draft → Implementation Phase
-> **Goal:** Transform scaffold into YC-competitive patent management SaaS
-
----
-
-## Phase 1: Environment Audit Results
-
-### ✅ Git & Remote
-- Remote origin: `https://github.com/dclawstack/dclaw-patent.git`
-- User email/name configured: `udaikiran@outlook.com` / `udaikiran`
-- Dry-run push successful — write permissions confirmed
-
-### ⚠️ Knowledge Management
-- **No Obsidian Vault or graphify knowledge graph found** in repository
-- Recommendation: Create a `/docs/knowledge/` directory or integrate with external PKM for tracking architectural decisions and sprint progress
-
-### 🔧 Infrastructure Fixes Required
-| Issue | Current | Required | File |
-|-------|---------|----------|------|
-| Backend port | `8147` | `8065` | `docker-compose.yml`, `backend/Dockerfile` |
-| Frontend port | `3061` | `3065` | `docker-compose.yml`, `frontend/Dockerfile`, `frontend/package.json` |
-| Database name | `dclaw_patent` | ✅ Already correct | `docker-compose.yml` |
-| API health path | `/health/` | ✅ Correct | `backend/app/api/main.py` |
+**Date:** 2026-05-16  
+**Objective:** Ship Y Combinator-ready product with AI differentiation in 12 weeks  
+**Target Metrics:** $10K+ MRR, 50%+ MoM growth, <$1K CAC
 
 ---
 
-## Phase 2: YC Gap Analysis Summary
+## Strategic Context
 
-### Current State (v0.0 Scaffold)
-- **Backend:** FastAPI scaffold with zero models, zero routes, zero services
-- **Frontend:** Next.js placeholder page with no patent-specific UI
-- **Database:** PostgreSQL container, empty schema
-- **Tests:** Only healthcheck test exists
-- **AI/ML:** Non-existent
-- **Competitive Position:** Not shippable
+This roadmap reflects findings from **GAP-ANALYSIS-YC.md**. Key pivots from v1.2:
 
-### Critical Gaps vs. YC Standard
-| Gap | Why It Blocks YC | Priority |
-|-----|------------------|----------|
-| No patent CRUD | Cannot demonstrate core workflow | P0 |
-| No docketing | Patent attorneys won't adopt without deadlines | P0 |
-| No portfolio dashboard | Executives need visual KPIs | P0 |
-| No prior art search | "Better Google Patents" value prop missing | P0 |
-| No semantic search | AI-native claim missing | P1 |
-| No examiner prediction | Only differentiation vs. incumbents | P2 |
-
-### Competitive Moat Strategy
-1. **Speed:** PostgreSQL + async FastAPI + Next.js = <1s page loads
-2. **Price:** Target $500–$2k/mo vs. AnAqua $500k/yr
-3. **UX:** Tailwind + pre-built shadcn components = fast, clean UI
-4. **AI-Ready Architecture:** pgvector-ready schema, service layer stubbed for LLM integration
+1. ✅ **Accelerate AI Claim Drafting** → P0 (not P1) — Ship in v1.0
+2. ✅ **Add Legal Automation** → USPTO/EPO integration in docketing (not manual)
+3. ✅ **Prioritize Freemium + Viral Growth** → Competitive watch as free feature
+4. ✅ **Shift to 12-week YC timeline** → MVP in Week 4, public beta in Week 8
 
 ---
 
-## Phase 3: Prioritized Feature Roadmap
+## Executive Summary of Feature Tiers
 
-### Complexity Legend
-- **0 — Low / Foundation:** Scaffolding, CRUD, config fixes, basic pages
-- **1 — Medium / Differentiator:** External APIs, search, dashboards, workflows
-- **2 — High / AI-Native:** LLM integration, embeddings, ML predictions, multimodal
+### P0 — Must Ship v1.0 (Weeks 1-4)
+- Portfolio CRUD + search
+- Docketing with deadline calculation (country-specific rules)
+- **NEW:** AI Patent Copilot (basic search + summarize)
+- **NEW:** AI Claim Drafting (disclosure → claims in 10 min)
+- Prior Art Search (USPTO + EPO APIs)
+- Dashboard (portfolio health, deadlines)
+- **NEW:** Legal automation (auto-docket from USPTO/EPO responses)
 
----
+### P1 — Must Ship v1.1-1.2 (Weeks 5-8)
+- Real-time collaboration (comments, @mentions)
+- Freedom-to-Operate (FTO) analysis + heatmap
+- Competitive Patent Watch (alerts, free-tier feature for viral growth)
+- Technology Landscape Mapping (visualization)
+- Invention Disclosure Workflow (intake + review routing)
+- Claim Quality Scoring (AI evaluation)
 
-### P0 — Foundation (Week 1–2) — Complexity 0
-
-#### [0.1] Infrastructure & Port Alignment
-- Fix backend port to `8065`, frontend to `3065` across all config files
-- Verify `docker-compose config` passes
-- Add `ARG NEXT_PUBLIC_API_URL` before `RUN npm run build` in frontend Dockerfile ✅ (already present)
-
-#### [0.2] Patent Core Data Model
-- **Model:** `Patent` (UUID, patent_number, title, abstract, claims JSON, description, filing_date, issue_date, status enum, applicant, inventors JSON, technology_category, jurisdiction, created_at, updated_at)
-- **Schema:** Pydantic v2 CRUD schemas with `ConfigDict(from_attributes=True)`
-- **Repository:** `PatentRepository(BaseRepository[Patent])`
-- **Router:** `/api/v1/patents` — full CRUD + list with filters
-- **Tests:** Repository tests + router tests with `httpx.AsyncClient`
-- **Alembic migration:** Auto-generate initial schema
-
-#### [0.3] Docket & Deadline Tracking
-- **Model:** `DocketEvent` (UUID, patent_id FK, event_type enum, due_date, description, status enum, assignee, created_at, updated_at)
-- **Schema:** CRUD + alert/urgent endpoints
-- **Repository:** `DocketRepository` with `get_overdue()` and `get_upcoming(days=30)`
-- **Router:** `/api/v1/dockets` — CRUD + `/alerts` for urgent/upcoming
-- **Tests:** Full coverage
-
-#### [0.4] Prior Art Model (Storage)
-- **Model:** `PriorArt` (UUID, patent_id FK, source_patent_number, source_title, relevance_score, claim_mapping JSON, analysis_notes, created_at, updated_at)
-- **Schema:** CRUD schemas
-- **Repository:** `PriorArtRepository`
-- **Router:** `/api/v1/prior-art` — nested under patents
-- **Tests:** Repository + router tests
-
-#### [0.5] Frontend — Portfolio Dashboard
-- **Page:** `/` → Portfolio overview
-- **Components:** Summary cards (total patents, by status, by jurisdiction), patent table (sortable/filterable), quick-add patent button
-- **API Integration:** Wire to `src/lib/api.ts` → `getPatents()`, `createPatent()`, etc.
-
-#### [0.6] Frontend — Patent Detail & Docket View
-- **Page:** `/patents/[id]` → Patent detail with tabs (Overview, Claims, Docket, Prior Art)
-- **Components:** Patent info card, claims viewer (JSON-rendered), docket list with urgency badges, add/edit docket events
+### P2 — v1.3+ (Weeks 9-12 and beyond)
+- Patent Valuation (citations, licensing)
+- Auto-Generated Patent Drawings
+- Licensing Marketplace
+- Advanced Analytics (ROI, cost of ownership)
+- Mobile app (iOS/Android)
 
 ---
 
-### P1 — Core Differentiators (Week 3–4) — Complexity 1
+## Detailed 12-Week Roadmap
 
-#### [1.1] Prior Art Search Integration (PatentsView API)
-- **Service:** `backend/app/services/prior_art_search.py`
-- **Endpoint:** `POST /api/v1/search/prior-art` — query PatentsView API, rank by text similarity (basic TF-IDF or keyword overlap)
-- **Frontend:** Search bar on patent detail page, results with "Add to Prior Art" button
-- **Value Prop:** "Find relevant prior art in 10 seconds vs. 3 days"
+### **Phase 1: MVP Defensibility (Weeks 1-4)**
 
-#### [1.2] Docketing Calendar View
-- **Frontend:** `/docket` page with calendar grid + list view
-- **Components:** Color-coded events (red=overdue, yellow=<7 days, green=ok)
-- **API:** Wire to docket alerts endpoint
+#### Week 1-2: Foundation + AI Copilot MVP
 
-#### [1.3] Semantic Search Infrastructure (pgvector)
-- **Backend:** Add `pgvector` to PostgreSQL, add `embeddings` vector column to `Patent`
-- **Service:** `patent_embeddings.py` — OpenAI/HuggingFace embedding generation stub
-- **Endpoint:** `POST /api/v1/search/semantic` — cosine similarity over patent embeddings
-- **Note:** Full semantic search needs patent corpus ingestion (P2). This P1 task is schema + stub.
+**Backend:**
+- [ ] Patent CRUD API with full-text search
+- [ ] Patent status enum + filtering (draft, filed, prosecution, issued, abandoned)
+- [ ] Docketing table + deadline calculation engine (country-specific: US 12-month rule, EP 31-month rule, etc.)
+- [ ] Vector store setup (PostgreSQL pgvector extension)
+- [ ] Patent embedding generation (Claude or open-source BERT)
+- [ ] Prior Art API integration: PatentsView (USPTO), EPO Open Patent Services
+- [ ] `POST /api/v1/ai/patent-search` endpoint (simple keyword + embedding search)
+- [ ] `POST /api/v1/ai/similar-patents` endpoint (find N most similar by embedding)
+- [ ] Async job queue (Celery) for long-running AI tasks
+- [ ] 70% test coverage: CRUD, search, deadline calculations
 
-#### [1.4] Technology Category Auto-Tagging
-- **Service:** Rule-based or lightweight LLM stub for auto-tagging patents by technology
-- **Trigger:** On patent creation/update
-- **Value:** Reduces manual data entry
+**Frontend:**
+- [ ] Patent portfolio table (columns: title, status, filing date, expiration, actions)
+- [ ] Patent detail view (claims, abstract, docket list, AI copilot panel on right)
+- [ ] Dashboard: portfolio health cards, overdue dockets (red/yellow/green), upcoming deadlines
+- [ ] Search interface: keyword + filter by status/jurisdiction/tech class
+- [ ] AI Copilot panel: "Find Similar Patents" button, results sidebar
+- [ ] Basic styling (Tailwind), no animations yet
 
----
+**Deployment:**
+- [ ] Docker: backend + frontend + postgres + redis
+- [ ] GitHub Actions CI: run tests, type-check on every push
+- [ ] Staging environment setup
 
-### P2 — AI-Native Features (Week 5–8) — Complexity 2
-
-#### [2.1] AI Patent Copilot (LLM-Powered Research Assistant)
-- **Backend:** `/api/v1/ai/patent-search` — RAG over patent abstracts + claims
-- **Integration:** OpenAI GPT-4o or Claude API for summarization + Q&A
-- **Frontend:** Chat panel in patent detail page
-- **Context:** Invention description → AI suggests relevant prior art, claim structures
-
-#### [2.2] Examiner Prediction Stub
-- **Model:** `ExaminerPrediction` (UUID, patent_id FK, predicted_allowance_probability, suggested_amendments JSON, confidence_factors JSON)
-- **Service:** Rule-based heuristic + LLM prompt (not true ML yet — data scarcity)
-- **Endpoint:** `POST /api/v1/predictions/allowance`
-- **Frontend:** Probability badge + amendment suggestions panel
-
-#### [2.3] Claim Mapping (AI-Assisted)
-- **Service:** LLM-based claim-to-prior-art mapping
-- **Input:** User patent claims + prior art claims
-- **Output:** JSON mapping `{ user_claim_num: [source_claim_nums], risk_level: "high|medium|low" }`
-- **Frontend:** Side-by-side claim comparison with risk highlights
-
-#### [2.4] Competitive Intelligence (Watch Lists)
-- **Model:** `CompetitorWatch` (UUID, company_name, technology_keywords JSON, last_scan_date)
-- **Service:** Periodically query PatentsView for new filings by competitor
-- **Endpoint:** `/api/v1/competitors` CRUD + `/api/v1/competitors/{id}/filings`
-- **Frontend:** Watch list manager + recent filings feed
-
-#### [2.5] PDF Report Generation
-- **Service:** `report_generator.py` using `weasyprint` or `pdfkit`
-- **Endpoints:**
-  - `POST /api/v1/reports/prior-art` — Prior art analysis PDF
-  - `POST /api/v1/reports/portfolio` — Portfolio summary PDF
-- **Frontend:** "Download Report" buttons on detail + dashboard pages
+**Success Criteria:**
+- ✓ Can upload/view 10+ patents
+- ✓ Search returns results in <1s
+- ✓ Similar patents rank correctly (manual review)
+- ✓ Deadline calculations correct for 3 jurisdictions
+- ✓ Tests passing, 70%+ coverage
 
 ---
 
-## Success Metrics for YC Demo Day (v1.3 Target)
+#### Week 2-3: AI Claim Drafting (P0 Priority)
 
-| Metric | Target | How Measured |
-|--------|--------|--------------|
-| **Patent CRUD** | 100% functional | Cypress / manual test |
-| **Docket Alerts** | <30s to see urgent deadlines | UX timer test |
-| **Prior Art Search** | <10s response | API latency test |
-| **Portfolio Dashboard** | <2s load (100 patents) | Lighthouse / manual |
-| **Test Coverage** | >70% backend | pytest coverage report |
-| **Docker Compose** | `up -d` boots all services | CI test |
+**Backend:**
+- [ ] Invention Disclosure schema: title, description, attachments, inventor info
+- [ ] PDF parser (pypdf or pdfplumber) to extract text from uploaded PDFs
+- [ ] Claude API integration for claim generation:
+  - Prompt: "You are a patent claim drafter. Given this invention, generate independent and dependent claims."
+  - Handle: 3 claim variants, temperature=0.3 for consistency
+  - Human review layer: score each variant 1-5
+- [ ] `POST /api/v1/ai/draft-claims` endpoint (returns 3 draft options)
+- [ ] `POST /api/v1/ai/draft-abstract` endpoint (one-liner)
+- [ ] Store drafts in DB with version history (user can compare versions)
+- [ ] Review workflow: mark draft as "approved" or "rejected" with feedback
+- [ ] Tests: claim generation quality (manual spot-check of 20 examples)
 
----
+**Frontend:**
+- [ ] "New Invention Disclosure" form: title, description, attachment (drag-drop)
+- [ ] AI Claim Drafting panel: "Generate Claims" button → shows 3 variants
+- [ ] Claim editor: can copy, edit, rate each variant
+- [ ] Abstract generator: one-button, shows result
+- [ ] "Submit for Review" button → marks workflow as "under_review"
+- [ ] Success animation: "Claims drafted in 2 min! 🎉"
 
-## Execution Order (Immediate)
+**Quality Assurance:**
+- [ ] Manual review: draft 10 real patents, rate claim quality
+- [ ] Ensure no hallucinations (claims must reference disclosure)
+- [ ] A/B test: users prefer variant A, B, or C?
 
-1. **Today:** Write PLAN-v1.3.md, fix ports, create Patent model + migration
-2. **Day 2:** Patent CRUD router + repository + tests
-3. **Day 3:** Docket model + router + tests
-4. **Day 4:** Prior Art model + router + tests
-5. **Day 5:** Frontend portfolio dashboard + patent detail pages
-6. **Day 6–7:** Frontend docket/calendar integration
-7. **Week 2:** Prior Art Search API integration (PatentsView)
-8. **Week 3:** Semantic search schema (pgvector) + embedding stubs
-9. **Week 4:** AI Copilot integration (OpenAI/Claude)
-10. **Week 5+:** Examiner prediction, claim mapping, competitive intel
-
----
-
-## Files to Create/Modify
-
-### Backend
-```
-backend/app/models/patent.py          ← NEW
-backend/app/models/docket.py          ← NEW
-backend/app/models/prior_art.py       ← NEW
-backend/app/models/__init__.py        ← MODIFY
-backend/app/schemas/patent.py         ← NEW
-backend/app/schemas/docket.py         ← NEW
-backend/app/schemas/prior_art.py      ← NEW
-backend/app/schemas/__init__.py       ← MODIFY
-backend/app/repositories/patent.py    ← NEW
-backend/app/repositories/docket.py    ← NEW
-backend/app/repositories/prior_art.py ← NEW
-backend/app/api/v1/patents.py         ← NEW
-backend/app/api/v1/dockets.py         ← NEW
-backend/app/api/v1/prior_art.py       ← NEW
-backend/app/api/v1/__init__.py        ← MODIFY
-backend/app/api/main.py               ← MODIFY (wire routers)
-backend/tests/test_patents.py         ← NEW
-backend/tests/test_dockets.py         ← NEW
-backend/tests/test_prior_art.py       ← NEW
-backend/alembic/versions/...          ← NEW (auto-generate)
-backend/requirements.txt              ← MODIFY (add pgvector, openai stubs)
-```
-
-### Frontend
-```
-frontend/src/lib/api.ts               ← MODIFY (add patent/docket/prior-art APIs)
-frontend/src/app/page.tsx             ← MODIFY (portfolio dashboard)
-frontend/src/app/patents/[id]/page.tsx ← NEW (patent detail)
-frontend/src/app/docket/page.tsx      ← NEW (docket calendar)
-frontend/src/components/portfolio/    ← NEW directory
-frontend/src/components/patent/       ← NEW directory
-frontend/src/components/docket/       ← NEW directory
-```
-
-### Infrastructure
-```
-docker-compose.yml                    ← MODIFY (ports 8065/3065)
-backend/Dockerfile                    ← MODIFY (port 8065)
-frontend/Dockerfile                   ← MODIFY (port 3065)
-frontend/package.json                 ← MODIFY (port 3065)
-```
+**Success Criteria:**
+- ✓ Generate claims in <2 min (most under 30s)
+- ✓ Claims are coherent and reference disclosure
+- ✓ Users can edit/iterate on draft
+- ✓ <5% hallucination rate (measured manually)
 
 ---
 
-## Anti-Patterns to Avoid (from AGENTS.md)
-- ❌ No `declarative_base()` — use `from app.models.base import Base`
-- ❌ No `default_factory=` in `mapped_column()` — use `default=`
-- ❌ No mock data / in-memory dicts — all DB access via repositories
-- ❌ No manual `get_db()` with `__anext__()` — use `Depends(get_db)`
-- ❌ No hardcoded `localhost:PORT` — use `process.env.NEXT_PUBLIC_API_URL`
-- ❌ No timezone-aware datetime in models — strip tzinfo
-- ❌ No missing alembic migration for new models
+#### Week 3-4: Legal Automation + Docketing Refinement
+
+**Backend:**
+- [ ] USPTO/EPO integration: webhook listeners for office actions, responses, maintenance fees
+- [ ] Auto-parse office action documents (PDF) → extract dates, requirements, deadlines
+- [ ] Auto-calculate response deadline (country-specific rules)
+- [ ] Auto-create docket entries: "Office Action Response Required" + due date
+- [ ] Deadline notifications: email 30/14/7 days before due
+- [ ] Bulk docket operations: export to CSV, print calendar
+- [ ] Maintenance fee schedule: auto-populate based on patent issue date + jurisdiction
+- [ ] Tests: deadline calculation for 5+ jurisdictions (US, EU, JP, CN, IN)
+
+**Frontend:**
+- [ ] Docket calendar view: month/week view, color-coded urgency
+- [ ] Docket list: filter by jurisdiction, type (office action, maintenance, publication)
+- [ ] Mark complete: checkbox + timestamp
+- [ ] Docket detail: show auto-generated fields + manual override option
+- [ ] Export: CSV for Excel, iCal for calendar apps
+- [ ] Alerts: in-app notification + email for upcoming deadlines
+
+**Deployment:**
+- [ ] Load test: 1000 patents, 5000 dockets, search <500ms
+- [ ] Error handling: USPTO API rate limits, retries with exponential backoff
+
+**Success Criteria:**
+- ✓ Auto-docket 100+ office actions without manual entry
+- ✓ Deadline calculations 100% accurate for 3 jurisdictions
+- ✓ Users trust automated dates (survey: "Do you verify our deadlines?")
+- ✓ <5% false positives in auto-parsing
 
 ---
 
-## Risk Register
+#### Week 4: MVP Polish + Internal Dogfood
 
-| Risk | Likelihood | Mitigation |
-|------|------------|------------|
-| PatentsView API rate limits | Medium | Cache results, implement backoff |
-| pgvector not in CI postgres | Low | Use `pgvector/pgvector:pg16` image |
-| LLM API costs during dev | Medium | Use stub responses in test env |
-| Frontend build failures | Low | Verify `tailwindcss-animate` in deps |
+**Backend:**
+- [ ] Fix bugs from internal testing
+- [ ] Add missing error handling (API validation, edge cases)
+- [ ] Performance: optimize slow queries (patent search should be <200ms)
+- [ ] Security: input validation, SQL injection tests
+
+**Frontend:**
+- [ ] Responsive design: works on mobile (docket checks on mobile)
+- [ ] Accessibility: keyboard navigation, screen reader support
+- [ ] Bug fixes from dogfood testing
+- [ ] Dark mode toggle (nice-to-have)
+
+**Documentation:**
+- [ ] API docs (OpenAPI/Swagger)
+- [ ] Setup guide for deployment
+- [ ] Internal runbook for bug reports
+
+**Internal Dogfood:**
+- [ ] 5 internal users test for 1 week
+- [ ] Measure: time to upload patent, time to draft claims, time to review dockets
+- [ ] Collect NPS / feedback
+- [ ] Fix critical issues only; defer nice-to-haves to v1.1
+
+**Success Criteria:**
+- ✓ NPS >50 from internal users
+- ✓ Zero critical bugs
+- ✓ "I'd use this for real" from 80%+ of testers
+- ✓ Deployment: 1-click `docker compose up`
 
 ---
 
-## Next Action
-Proceed to Phase 3: Begin autonomous implementation starting with **[0.1] Infrastructure Fix** + **[0.2] Patent Core Data Model**.
+### **Phase 2: Competitive Differentiation (Weeks 5-8)**
+
+#### Week 5: Freemium Model + Competitive Watch (Launch Feature)
+
+**Why Free Competitive Watch:**
+- Freemium ≈ viral loop (users invite teammates to monitor competitors)
+- Patent Watch (YC company) gets $20K+/year; we offer for free → acquisition wedge
+- Solves "FOMO for patent teams": scared of missing competitor moves
+
+**Backend:**
+- [ ] Competitor Watch schema: watchlist (list of competitor names/assignees)
+- [ ] Scheduled job (daily): query USPTO/EPO for new patents by competitors
+- [ ] Alert generation: "Competitor X filed Y patents in Z area this week"
+- [ ] Free tier: up to 3 competitor watchlists, 1 alert per week (batched)
+- [ ] Paid tier: unlimited watchlists, real-time alerts, historical analysis
+- [ ] `POST /api/v1/watch/competitor` endpoint
+- [ ] `GET /api/v1/watch/alerts` endpoint
+
+**Frontend:**
+- [ ] "Add Competitor" modal: search USPTO by assignee name
+- [ ] Watchlist dashboard: "Your competitors filed 5 new patents this week"
+- [ ] Expandable alerts: see patents, technology areas, assignees
+- [ ] Share alert: "Check this out 👉 [link]" → drives freemium signups
+
+**Pricing Model:**
+- [ ] Free tier: 5 patents, 3 watchlists, 1 docket, 1 alert/week → $0
+- [ ] Pro tier: unlimited patents, 10 watchlists, alerts every 6h → $49/mo
+- [ ] Enterprise: custom, contact sales → $500+/mo
+- [ ] Implement stripe.com integration (charge cards)
+
+**Launch Metrics:**
+- [ ] 50+ signups via competitive watch feature (viral loop)
+- [ ] NPS >60 from free users
+- [ ] 10%+ free→paid conversion (hope for 20%)
+
+**Success Criteria:**
+- ✓ Free users can set up competitor watch in <2 min
+- ✓ Alerts arrive daily (no missed competitors)
+- ✓ <1% false positive rate (e.g., different company with same name)
+- ✓ 10+ free-tier users actively using
+
+---
+
+#### Week 5-6: Real-Time Collaboration
+
+**Context:** Anaqua's strength is team collaboration. We need it for enterprise sales.
+
+**Backend:**
+- [ ] Comments schema: patent_id, user_id, text, created_at, resolved (bool)
+- [ ] `POST /api/v1/comments` endpoint (create comment)
+- [ ] `GET /api/v1/patents/{id}/comments` endpoint (get all)
+- [ ] WebSocket support (optional; can defer to v1.2)
+- [ ] @mention parsing: "Check with @legal_team on this claim"
+- [ ] Notifications: email when mentioned
+- [ ] Audit log: track all changes (patent edit, docket update, comment)
+
+**Frontend:**
+- [ ] Comments panel on patent detail (right sidebar)
+- [ ] Typeahead @mention: search team members
+- [ ] "Resolve" button: mark comment as resolved (hide by default)
+- [ ] Activity feed: "Alice edited claims, Bob commented" → shows history
+- [ ] Thread view: replies to comments (sub-thread)
+
+**Enterprise Features (v1.2):**
+- [ ] Roles: Admin, Attorney, Reviewer, Inventor (read-only)
+- [ ] Permissions: Inventor can only see own disclosures
+- [ ] Review workflow: Disclosure → Attorney review → approved/rejected + feedback
+
+**Success Criteria:**
+- ✓ Team of 5 can collaborate on patent without leaving app
+- ✓ No lost comments (all persisted)
+- ✓ Mention notifications arrive <1 min
+
+---
+
+#### Week 6-7: Freedom-to-Operate (FTO) Analysis
+
+**Why P1 (not P0):** Solves "Can we launch this product?" → used for launch planning
+
+**Backend:**
+- [ ] FTO search: product description → finds potentially blocking patents
+- [ ] Infringement risk scoring: claims overlap + patent strength → risk score 1-10
+- [ ] Generate FTO report: "2 medium-risk patents (score 6-8), 0 high-risk"
+- [ ] Heatmap data: product areas × patent risks (visualization on frontend)
+- [ ] `POST /api/v1/ai/fto-analysis` endpoint
+- [ ] Comparison: our product claims vs. blocking patent claims
+
+**Frontend:**
+- [ ] FTO wizard: "Upload your product spec" → gets back risk assessment
+- [ ] Heatmap: product areas (Y-axis) × risk level (color: green/yellow/red)
+- [ ] Patent cards: showing blocking patents + overlap visualization
+- [ ] Recommendation: "Redesign module X to avoid these claims" (if applicable)
+- [ ] Export: FTO report (PDF) for legal review
+
+**Quality Assurance:**
+- [ ] Manual review: spot-check 10 FTO reports
+- [ ] Compare vs. human patent attorney (if possible)
+- [ ] Score accuracy: does a "high-risk" patent actually look risky?
+
+**Success Criteria:**
+- ✓ FTO analysis completes in <5 min
+- ✓ Risk scores align with manual review (Spearman correlation >0.7)
+- ✓ Users find results actionable ("This risk is real" 80%+)
+
+---
+
+#### Week 7-8: Technology Landscape + Disclosure Workflow
+
+**Week 7: Technology Landscape Mapping**
+
+**What it is:** Bubble map or treemap of patent landscape → find white spaces
+
+**Backend:**
+- [ ] Patent clustering: group by technology class (IPC codes)
+- [ ] Competitive analysis: which assignees own which tech areas
+- [ ] White-space detection: areas with <10 patents (less crowded)
+- [ ] Trend analysis: which tech areas growing year-over-year
+- [ ] `GET /api/v1/analytics/landscape` endpoint (returns graph data)
+
+**Frontend:**
+- [ ] Bubble chart: bubble size = # of patents, color = assignee, X/Y = tech class
+- [ ] Interactive: hover → see top patents, click → go to patent detail
+- [ ] Toggle view: bubble → treemap → force-directed graph
+- [ ] Filters: date range, jurisdiction, assignee
+- [ ] Insight: "Quantum computing (IPC H03F) has 200 patents; AI/ML has 5000" (crowded)
+
+**Success Criteria:**
+- ✓ Visualization loads in <2s
+- ✓ Users can identify white-space areas (manual survey: "Did you learn something new? Y/N")
+- ✓ Data is current (updated daily)
+
+---
+
+**Week 8: Invention Disclosure Workflow**
+
+**What it is:** Structured intake for inventors → review routing → file as patent
+
+**Backend:**
+- [ ] Disclosure form builder: schema + validation
+- [ ] Review routing: assign disclosure to attorney
+- [ ] Workflow states: draft → submitted → under_review → approved → filed
+- [ ] Comments in review process: attorney can add feedback
+- [ ] File button: submit to USPTO (if integrated; else just mark as ready)
+- [ ] `POST /api/v1/disclosures/{id}/submit` endpoint
+- [ ] `POST /api/v1/disclosures/{id}/file` endpoint (USPTO integration)
+
+**Frontend:**
+- [ ] Disclosure form: wizard (step 1: basics, step 2: description, step 3: drawings)
+- [ ] AI pre-fill: "Let us draft claims for you" (uses claims drafting AI)
+- [ ] Submit flow: review checklist, then submit
+- [ ] Review dashboard (for attorneys): queue of pending disclosures, comment interface
+- [ ] Approval flow: approve/reject with feedback
+- [ ] File button: ready to submit to USPTO (confirmation dialog)
+
+**Integration (Deferred to v1.2):**
+- [ ] USPTO ePAVE integration (automated filing)
+- [ ] EPO filing (need legal review)
+
+**Success Criteria:**
+- ✓ Inventor can file disclosure in <10 min
+- ✓ Attorney can review + approve in <5 min
+- ✓ Feedback loop: inventor gets notification + can revise
+- ✓ <2% disclosure abandonment (most get filed)
+
+---
+
+### **Phase 3: Scale & Enterprise (Weeks 9-12+)**
+
+#### Week 9: Claim Quality Scoring (AI Evaluation)
+
+**Backend:**
+- [ ] LLM evaluation: score claim set on 5 dimensions
+  1. Clarity: are claims written clearly? (1-5)
+  2. Scope: are independent claims broad enough? (1-5)
+  3. Validity: will these survive USPTO / EPO review? (1-5)
+  4. Enforceability: will courts enforce these? (1-5)
+  5. Novelty: how novel vs. prior art? (1-5)
+- [ ] Return: overall score (1-5) + detailed feedback per dimension
+- [ ] `POST /api/v1/ai/score-claims` endpoint
+
+**Frontend:**
+- [ ] Claims detail page: "Quality Score: 4.2/5"
+- [ ] Breakdown: show radar chart of 5 dimensions
+- [ ] Feedback: "Claims are clear but maybe too narrow. Consider adding dependent claims for breadth."
+- [ ] Action: "Improve Score" button → AI suggestions for revision
+
+**Success Criteria:**
+- ✓ Scores correlate with examiner acceptance (measure in v1.2)
+- ✓ Feedback is actionable ("too broad" → users understand why)
+
+---
+
+#### Week 10: Enterprise Features (Roles, Permissions, Audit)
+
+**Backend:**
+- [ ] User roles: Admin, Attorney, Inventor, Viewer
+- [ ] Permission matrix: who can see/edit/approve what?
+- [ ] Audit log: all changes (patent edit, docket update, comment) with user + timestamp
+- [ ] Workspace: separate orgs (law firm A ≠ law firm B)
+- [ ] Invitation system: admin invites users, auto-signup
+
+**Frontend:**
+- [ ] Admin settings: manage users, roles, audit log
+- [ ] Role-based UI: Inventor doesn't see billing, doesn't see other's disclosures
+- [ ] Audit trail: click on patent → see "Edit history" (who changed what, when)
+
+**Success Criteria:**
+- ✓ Law firm with 50 users can manage permissions safely
+- ✓ Compliance team can export audit log for SOC 2 audit
+
+---
+
+#### Week 11: Analytics & ROI Dashboard
+
+**Backend:**
+- [ ] KPIs: # patents, total value (est.), maintenance costs, time saved (vs. manual)
+- [ ] Trends: growth of portfolio over time
+- [ ] Cost analysis: maintenance fee forecasting, cost per patent (annual)
+- [ ] Efficiency: "You saved X hours this month via AI drafting"
+
+**Frontend:**
+- [ ] Executive dashboard: portfolio value, maintenance spend, team utilization
+- [ ] Drill-down: which patents are most valuable? (by citations, licensing)
+- [ ] ROI calculator: "DClaw paid for itself in X months"
+- [ ] Benchmark: "Your portfolio is X% the size of competitor Y"
+
+**Success Criteria:**
+- ✓ CFO can use this to justify IP budget to board
+- ✓ "DClaw saved us $50K this year" (measurable)
+
+---
+
+#### Week 12: Polish, Performance, Launch Prep
+
+**Backend:**
+- [ ] Load testing: 10K patents, 100K dockets, <500ms searches
+- [ ] Security audit: penetration test, OWASP Top 10 scan
+- [ ] Database optimization: indexes, query tuning, connection pooling
+- [ ] Error handling: all edge cases covered
+- [ ] Monitoring: error rates, API latency, database health
+
+**Frontend:**
+- [ ] Performance: Lighthouse >90, Core Web Vitals green
+- [ ] Accessibility: WCAG 2.1 AA compliance
+- [ ] Mobile: full responsive design, touch-friendly
+- [ ] E2E tests: critical user flows (upload patent → draft claims → review docket)
+
+**Documentation:**
+- [ ] User guide: video tutorials for each feature
+- [ ] API docs: OpenAPI v3.0
+- [ ] Admin guide: setup, user management, billing
+- [ ] Changelog: what's new in v1.0
+
+**Launch Marketing:**
+- [ ] Press release: "DClaw Patent: AI-Powered Patent Management"
+- [ ] Product Hunt post: tagline, screenshots, demo video
+- [ ] Beta email: notify 100 waitlist users
+- [ ] Social: Twitter, LinkedIn, AngelList
+- [ ] Pricing page: clear value prop, pricing tiers, FAQ
+
+**Success Criteria:**
+- ✓ 100+ beta signups in week 1
+- ✓ NPS >70 from beta users
+- ✓ 10+ paid conversions in month 1
+- ✓ Website: clear, fast, converts
+
+---
+
+## Success Metrics by Phase
+
+### Phase 1 (Week 4): MVP Validation
+- ✅ Internal NPS >50
+- ✅ Can draft claims in <2 min
+- ✅ 70%+ test coverage
+- ✅ Zero critical bugs
+
+### Phase 2 (Week 8): Market Traction
+- ✅ 50+ beta signups (freemium)
+- ✅ $2K+ MRR from early paid users
+- ✅ 50%+ MoM growth
+- ✅ NPS >60
+
+### Phase 3 (Week 12): Series A Readiness
+- ✅ $10K+ MRR
+- ✅ <$1K CAC (from freemium virality)
+- ✅ 3+ enterprise pilots ($5K+/mo each)
+- ✅ Public case study: "Law firm X saved Y hours with DClaw"
+
+---
+
+## Dependencies & Risks
+
+### Critical Dependencies
+
+| Task | Depends On | Risk Level |
+|------|-----------|-----------|
+| AI Claim Drafting | Claude API access, good prompts | 🟡 Medium (API reliability) |
+| USPTO/EPO Integration | Patent office APIs stable | 🟡 Medium (rate limits, docs) |
+| Legal Automation | Office action parsing (OCR) | 🔴 High (complex documents) |
+| Competitive Watch | USPTO/EPO data freshness | 🟡 Medium (lag: 2-4 weeks) |
+| FTO Analysis | Claims overlap detection | 🔴 High (legal accuracy critical) |
+
+### Risk Mitigations
+
+| Risk | Mitigation |
+|------|-----------|
+| Claude API hallucinations in claims | Human review layer, version history, compare with disclosure |
+| USPTO rate limits / unavailability | Local patent cache, async queuing, fallback to static data |
+| Office action parsing failures | Start with simple patterns, add OCR later, manual override |
+| Legal liability (FTO accuracy) | Disclaimer: "For informational purposes; consult patent attorney", E&O insurance |
+| Patent data licensing cost | Use free APIs (PatentView, EPO); negotiate enterprise deals later |
+
+---
+
+## Resource Allocation
+
+### Recommended Team
+- 1 Backend Lead (FastAPI, PostgreSQL, vector embeddings)
+- 1 Full-Stack Engineer (Next.js, API integration, UI)
+- 1 AI/ML Engineer (prompt engineering, embeddings, LLM fine-tuning)
+- 1 QA / DevOps (testing, CI/CD, deployment, monitoring)
+- (Optional) 1 Patent Domain Expert (contractor; advise on legal accuracy)
+
+### Estimated Timeline (Solo/Pair)
+- If 1 engineer: 16 weeks (overscoped)
+- If 2 engineers: 10-12 weeks (recommended)
+- If 4 engineers: 6-8 weeks (aggressive but doable)
+
+---
+
+## Appendix: Key Files to Create/Update
+
+| File | Purpose | Priority |
+|------|---------|----------|
+| `backend/app/models/patent.py` | Patent ORM schema | P0 |
+| `backend/app/models/docket.py` | Docket/deadline schema | P0 |
+| `backend/app/models/disclosure.py` | Invention disclosure schema | P0 |
+| `backend/app/services/patent_ai.py` | AI copilot + claim drafting | P0 |
+| `backend/app/services/prior_art.py` | Patent search integration | P0 |
+| `backend/app/services/docketing.py` | Deadline calculation engine | P0 |
+| `backend/app/api/v1/patents.py` | Patent CRUD API | P0 |
+| `backend/app/api/v1/ai.py` | AI feature endpoints | P0 |
+| `frontend/src/app/portfolio/page.tsx` | Patent list view | P0 |
+| `frontend/src/app/patent/[id]/page.tsx` | Patent detail + copilot | P0 |
+| `frontend/src/app/dockets/page.tsx` | Docket calendar/list | P0 |
+| `frontend/src/app/disclosure/page.tsx` | Invention disclosure form | P1 |
+| `frontend/src/app/fto/page.tsx` | FTO analysis UI | P1 |
+| `frontend/src/app/watch/page.tsx` | Competitive watch | P1 |
+| `frontend/src/components/ai-copilot.tsx` | Reusable copilot component | P0 |
+| `.github/workflows/ci.yml` | Run tests on every push | P0 |
+| `docker-compose.yml` | Local dev environment | P0 |
+| `helm/Chart.yaml` | Kubernetes deployment | P1 |
+
+---
+
+## Conclusion
+
+This roadmap balances **speed** (ship MVP in 4 weeks) with **defensibility** (AI differentiation, legal automation). Success depends on:
+
+1. **Nailing AI claim drafting** — if users love it, viral growth via competitors
+2. **Executing legal automation** — saves real time, earns trust
+3. **Freemium competitive watch** — acquisition wedge, network effects
+4. **Staying laser-focused** — no feature creep; defer polish to v1.2
+
+**YC Thesis:** "AI is making patent work 10x faster. We're building the platform."
+
+---
+
+*Last updated: 2026-05-16*

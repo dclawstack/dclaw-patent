@@ -1,319 +1,225 @@
-# PRODUCT-SPEC: DClaw Patent Management System
+# PRODUCT-SPEC: DClaw Patent
 
 ## Overview
 
 **App Name:** DClaw Patent  
-**Domain:** Patent Management & IP Analytics  
-**Target Users:** SME in-house counsel, startup founders, boutique patent law firms  
-**Primary Use Case:** Semantic patent search, prior art analysis, prosecution tracking  
-**Market Position:** 10x faster, 10x cheaper than AnAqua/PatSnap/CPA Global
+**Domain:** AI-Powered Patent Management & IP Portfolio Automation  
+**Target User:** In-house IP teams (50-500 people), solo patent practitioners, small law firms  
+**Market Opportunity:** $13.48B (2026) → $41.63B (2035)  
+**Competitive Positioning:** Faster, cheaper AI claim drafting + legal automation vs. PatSnap/Anaqua
 
----
-
-## Core Entities & Data Model
+## Core Entities
 
 ### Patent
 ```
 Patent
 ├── id: UUID (PK)
-├── patent_number: str (unique, required)
+├── external_id: str (USPTO/EPO/WIPO reference, unique)
 ├── title: str (required)
-├── abstract: str (required)
-├── claims: JSON (required) — full claim text
-├── description: str (required)
-├── filing_date: date (required)
+├── abstract: str (optional)
+├── claims: text (full claim text)
+├── status: enum ["draft", "filed", "prosecution", "issued", "abandoned", "expired"] (default: "draft")
+├── filing_date: date (optional)
+├── publication_date: date (optional)
 ├── issue_date: date (optional)
-├── status: enum ["drafted", "filed", "prosecution", "issued", "abandoned", "lapsed"] (default: "filed")
-├── applicant: str (required)
-├── inventors: JSON (array of strings)
-├── technology_category: str (optional) — e.g., "software", "mechanical", "biotech"
-├── jurisdiction: str (required) — e.g., "US", "EU", "JP"
-├── embeddings: vector (pgvector) — semantic search index
+├── expiration_date: date (optional)
+├── inventor_ids: list[UUID] (FK → Inventor)
+├── assignee: str (required)
+├── technology_class: str (IPC/CPC code, optional)
 ├── created_at: datetime
 ├── updated_at: datetime
-└── metadata: JSON (optional) — family ID, citations, etc.
+└── ai_generated: bool (default false)
 ```
 
-### PriorArt
-```
-PriorArt
-├── id: UUID (PK)
-├── patent_id: UUID (FK → Patent)
-├── source_patent_number: str (required)
-├── source_title: str (required)
-├── relevance_score: float (0–1, AI-generated)
-├── claim_mapping: JSON (optional) — which claims match which source claims
-├── analysis_notes: str (optional)
-├── created_at: datetime
-└── updated_at: datetime
-```
-
-### ExaminerPrediction
-```
-ExaminerPrediction
-├── id: UUID (PK)
-├── patent_id: UUID (FK → Patent)
-├── predicted_allowance_probability: float (0–1, ML model)
-├── suggested_claim_amendments: JSON (array of suggestions)
-├── examiner_likelihood: float (0–1) — confidence in prediction
-├── confidence_factors: JSON — what drove the prediction
-├── created_at: datetime
-└── updated_at: datetime
-```
-
-### Docket
+### Docket (Deadline/Event Tracker)
 ```
 Docket
 ├── id: UUID (PK)
-├── patent_id: UUID (FK → Patent)
-├── event_type: enum ["filing", "response_due", "maintenance_fee", "prosecution_update", "custom"] (required)
+├── patent_id: UUID (FK → Patent, ondelete=CASCADE)
+├── event_type: enum ["office_action", "response_deadline", "maintenance_fee", "publication", "issuance", "appeal", "custom"] (required)
 ├── due_date: date (required)
-├── deadline_description: str (required)
+├── jurisdiction: str (US, EP, WO, etc.)
+├── description: str (optional)
 ├── status: enum ["pending", "completed", "overdue"] (default: "pending")
-├── assignee: str (optional) — responsible person/firm
+├── auto_generated: bool (default true)
 ├── created_at: datetime
 └── updated_at: datetime
 ```
 
-### CompetitorWatch
+### InventionDisclosure
 ```
-CompetitorWatch
+InventionDisclosure
 ├── id: UUID (PK)
-├── company_name: str (required)
-├── technology_keywords: JSON (array)
-├── recent_filings: JSON (patent list, auto-updated)
-├── last_scan_date: datetime
-└── created_at: datetime
+├── title: str (required)
+├── description: text (required)
+├── inventor_id: UUID (FK → User)
+├── summary: str (AI-generated abstract)
+├── claims_draft: text (AI-generated claims)
+├── status: enum ["draft", "submitted", "under_review", "approved", "filed"] (default: "draft")
+├── ai_assist_used: bool (default false)
+├── created_at: datetime
+└── updated_at: datetime
 ```
 
----
-
-## User Stories & Core Screens
-
-### Screen 1: Patent Search (Dashboard)
-- **Semantic search bar:** "Machine learning image classification with edge processing"
-- **Results:** Patents ranked by relevance (embedding similarity)
-- **Quick actions:** Add to portfolio, create prior art analysis, compare claims
-- **Filters:** Technology, jurisdiction, date range, patent status
-
-**Core Workflow:**
-1. User types natural language query
-2. System converts to embeddings
-3. Returns top 20 relevant patents (not keyword matches)
-4. User clicks "Create Prior Art Analysis" → moves to Screen 3
-
-### Screen 2: My Patents (Portfolio Dashboard)
-- **Summary cards:** Total patents, by status (issued/pending/abandoned), geographic coverage, tech distribution
-- **Status timeline:** Visual map of filing/issue/expiration dates
-- **Patent list table:** Sortable, filterable grid with all patents
-- **Quick actions:** Add patent, view details, export portfolio
-
-**Data Shown:**
-- Patent number, title, status, filing date, issue date
-- Technology category (auto-tagged)
-- Upcoming docket events (red flag if deadline in <30 days)
-
-### Screen 3: Patent Detail & Prior Art Analysis
-- **Patent info card:** Number, title, claims, abstract, dates
-- **AI Predictions:** Allowance probability, suggested amendments (P0.3)
-- **Prior Art Section:** Auto-linked prior art with relevance scores
-- **Claim Chart:** Side-by-side comparison of claims vs. prior art (P1 feature)
-- **Docket/Deadlines:** Upcoming filing dates, response deadlines
-- **Timeline:** History of this patent's prosecution
-
-**Core Actions:**
-- Edit patent metadata
-- Regenerate prior art analysis
-- Download prior art report
-- Create FTO analysis (P1)
-
-### Screen 4: Prior Art Analysis
-- **Uploaded patent:** Full text + claims
-- **Search results:** Ranked prior art (with relevance %)
-- **Claim mapping:** AI auto-marks which claims are anticipated/obviousness risks
-- **Report generation:** Export analysis as PDF (prior art chart, risk assessment)
-- **Custom notes:** User can add markup
-
-### Screen 5: Docking Calendar
-- **Monthly calendar:** All deadlines color-coded (red=urgent, yellow=upcoming)
-- **Deadline list:** Sortable by date, type (filing, maintenance, response)
-- **Auto-alerts:** Email reminders at 30/7/1 day before
-- **Bulk actions:** Export calendar, assign to firm
-
-### Screen 6: Competitive Intelligence (P1)
-- **Watch list:** Companies to monitor
-- **Recent filings:** Auto-updated list of competitor patents
-- **Technology alerts:** New filings in your tech areas
-- **Report:** Monthly competitive snapshot
-
----
-
-## API Endpoints (v1.0–1.3)
-
-### Patents (CRUD)
+### Inventor
 ```
-GET    /api/v1/patents                    → List user's patents
-POST   /api/v1/patents                    → Upload/create patent
-GET    /api/v1/patents/{id}               → Get patent details
-PUT    /api/v1/patents/{id}               → Update patent metadata
-DELETE /api/v1/patents/{id}               → Delete patent
+Inventor
+├── id: UUID (PK)
+├── name: str (required)
+├── email: str (unique, required)
+├── organization: str (optional)
+├── created_at: datetime
+└── updated_at: datetime
 ```
 
-### Semantic Search (AI)
+## User Stories / Screens
+
+### Screen 1: Dashboard
+- Portfolio health: patents by status, upcoming deadlines (red/yellow/green)
+- Active maintenance fees and filing deadlines (next 30/60/90 days)
+- Docket overview: overdue items highlighted
+- Quick actions: "New Invention Disclosure", "Upload Patent", "Search Prior Art"
+- Technology distribution (IPC code breakdown)
+
+### Screen 2: Patent Portfolio
+- Table view: all patents with status, filing date, expiration date
+- Search/filter by: title, status, technology class, jurisdiction
+- Bulk actions: archive, export, mass-tag
+- Add patent form (manual or USPTO/EPO lookup)
+
+### Screen 3: Patent Detail
+- Patent info (claims, abstract, drawings)
+- Docket timeline (all deadlines and events)
+- AI Copilot panel (similar patents, sentiment analysis)
+- Inventor/assignee info
+- Collaboration comments (internal notes, team discussion)
+
+### Screen 4: Invention Disclosure (NEW)
+- Structured intake form: invention title, description, drawings/attachments
+- AI claim drafting: "Generate Claims Draft" button
+- AI abstract generation
+- Review workflow: submit for review, reviewer dashboard
+- Auto-parse PDFs to populate fields
+
+### Screen 5: Prior Art Search
+- Search interface (keyword, technology class, patent number)
+- Results table: title, relevance score, publication date, similarity badge
+- Side-by-side claim comparison
+- Save searches / set up alerts
+
+### Screen 6: Docket Calendar
+- Calendar view of all deadlines by jurisdiction
+- List view with filters (office action, response, maintenance fee)
+- Color-coded urgency (red: <30 days, yellow: 30-60, green: 60+)
+- Mark complete / update status
+- Auto-reminders (email, in-app)
+
+## AI Features (Differentiator)
+
+### P0 — MVP (v1.0)
+- **AI Patent Copilot:** Search patent databases, summarize claims, identify similar patents ("Find patents like mine")
+- **AI Claim Drafting:** Parse invention disclosure → auto-generate claims draft + abstract (10-min MVP)
+- **Prior Art Similarity:** Embeddings-based search + relevance ranking (vs. exact keyword match)
+
+### P1 — Differentiation (v1.1-1.2)
+- **FTO (Freedom-to-Operate) Analysis:** Identify infringement risk, heatmap by product area
+- **Competitive Patent Watch:** Alert on competitor filings in target technology areas
+- **Claim Quality Scoring:** LLM evaluation of claim structure, scope, enforceability
+
+### P2 — Enterprise (v1.3+)
+- **Patent Valuation:** Estimate value based on citations, family size, licensing history
+- **Technology Landscape:** Auto-clustering + white-space detection (bubble map)
+- **Office Action Auto-Response:** AI drafts response to office actions (with human review)
+
+## API Endpoints (v1.0)
+
+### Patent Management
 ```
-POST   /api/v1/search/semantic            → Search by natural language
-  Request: { query: "string" }
-  Response: [{ patent_id, title, relevance_score, ... }]
-
-POST   /api/v1/search/prior-art           → Find prior art for a patent
-  Request: { patent_id: "uuid" }
-  Response: { patent, prior_art: [{ source_patent, relevance, claim_mapping }] }
+GET    /api/v1/patents              → List patents (with pagination, filters)
+POST   /api/v1/patents              → Create patent (manual or import)
+GET    /api/v1/patents/{id}         → Get patent detail
+PUT    /api/v1/patents/{id}         → Update patent
+DELETE /api/v1/patents/{id}         → Delete patent
+POST   /api/v1/patents/import       → Bulk import from USPTO/EPO
 ```
 
-### Predictions (ML)
+### Docketing & Deadlines
 ```
-POST   /api/v1/predictions/allowance      → Predict grant likelihood
-  Request: { patent_id: "uuid" }
-  Response: { probability, confidence, suggested_amendments }
-
-POST   /api/v1/predictions/claim-amendments → Suggest claim improvements
-  Request: { patent_id: "uuid" }
-  Response: { suggestions: [{ claim_num, amendment, rationale }] }
-```
-
-### Docketing
-```
-GET    /api/v1/dockets                    → List all deadlines
-POST   /api/v1/dockets                    → Create deadline
-PUT    /api/v1/dockets/{id}               → Update deadline status
-DELETE /api/v1/dockets/{id}               → Delete deadline
-
-POST   /api/v1/dockets/alerts             → Get urgent alerts
-  Response: { urgent: [...], upcoming: [...] }
+GET    /api/v1/dockets              → List dockets (filtered by jurisdiction, urgency)
+POST   /api/v1/dockets              → Create docket entry
+PUT    /api/v1/dockets/{id}         → Update docket (mark complete, etc.)
+DELETE /api/v1/dockets/{id}         → Delete docket
+GET    /api/v1/dockets/overdue      → Get overdue items (red alerts)
+POST   /api/v1/dockets/calculate    → Calculate deadlines by jurisdiction
 ```
 
-### Reporting & Export
+### Invention Disclosure
 ```
-POST   /api/v1/reports/prior-art          → Generate prior art report
-  Request: { patent_id: "uuid" }
-  Response: PDF blob
-
-POST   /api/v1/reports/portfolio          → Generate portfolio summary
-  Response: PDF blob (status, tech distribution, geographic spread)
-```
-
-### Competitive Intelligence (P1)
-```
-GET    /api/v1/competitors                → List watch list
-POST   /api/v1/competitors                → Add company to watch
-GET    /api/v1/competitors/{id}/filings   → Competitor's recent patents
+GET    /api/v1/disclosures          → List invention disclosures
+POST   /api/v1/disclosures          → Create new disclosure
+GET    /api/v1/disclosures/{id}     → Get disclosure detail
+PUT    /api/v1/disclosures/{id}     → Update disclosure
+POST   /api/v1/disclosures/{id}/submit → Submit for review
+POST   /api/v1/disclosures/{id}/file   → File as patent application
 ```
 
----
+### AI Features
+```
+POST   /api/v1/ai/patent-search     → Search patents (keyword, embedding-based)
+POST   /api/v1/ai/draft-claims      → Generate claims from disclosure
+POST   /api/v1/ai/draft-abstract    → Generate abstract from description
+POST   /api/v1/ai/similar-patents   → Find similar patents (embedding search)
+POST   /api/v1/ai/fto-analysis      → Freedom-to-Operate analysis
+GET    /api/v1/ai/patent-scores     → Get quality/enforceability scores
+```
 
-## AI/ML Components
+### Prior Art Search
+```
+POST   /api/v1/prior-art/search     → Search USPTO/EPO/WIPO databases
+GET    /api/v1/prior-art/results/{id} → Get search result detail
+POST   /api/v1/prior-art/compare    → Side-by-side claim comparison
+```
 
-### 1. Semantic Search (P0, Week 1–3)
-- **Model:** Fine-tuned embeddings on patent abstracts + claims (Hugging Face / OpenAI)
-- **Index:** PostgreSQL pgvector
-- **Goal:** Achieve >85% relevant results (vs. 60% for Google Patents keyword search)
-- **Evaluation:** Test on known prior art scenarios
+### Dashboard & Analytics
+```
+GET    /api/v1/dashboard            → Dashboard stats (portfolio health, deadlines)
+GET    /api/v1/analytics/by-status  → Patents by status breakdown
+GET    /api/v1/analytics/by-class   → Patents by technology class (IPC)
+GET    /api/v1/analytics/expiring   → Patents expiring in next N months
+```
 
-### 2. Examiner Prediction (P0, Week 5–6)
-- **Training Data:** USPTO PAIR (examination history, office actions, grants)
-- **Model:** Lightweight LLM fine-tuned on claim patterns + technology area + examiner history
-- **Output:** Allowance probability + top 3 suggested claim amendments
-- **Accuracy Target:** >80% on test set
-
-### 3. Claim Mapping (P0, Week 4)
-- **Task:** Given user patent and prior art, auto-map which claims are anticipated
-- **Method:** Semantic similarity between claim sentences + manual review rules
-- **Output:** JSON mapping { user_claim_num → source_claim_nums }
-
-### 4. Claim Chart Generation (P1, Week 9–10)
-- **Input:** User patent + prior art list
-- **Output:** Traditional claim chart (elements matrix)
-- **Method:** LLM to extract claim elements, then fuzzy-match to prior art
-
----
+### Collaboration
+```
+POST   /api/v1/comments             → Add comment to patent/docket
+GET    /api/v1/patents/{id}/comments → Get all comments
+DELETE /api/v1/comments/{id}        → Delete comment
+```
 
 ## Non-Functional Requirements
 
-### Performance
-- Patent search: <1 sec response (embedding lookup)
-- Prior art analysis: <10 sec (batch embedding + relevance ranking)
-- Portfolio load: <2 sec (100 patents)
-
-### Availability
-- 99.5% uptime (SLA)
-- Auto-backup every 6 hours
-- Hot standby for database
-
-### Security
-- OAuth 2.0 login (Google, GitHub)
-- Role-based access control (owner, attorney, paralegal)
-- Encrypted storage for sensitive data (at-rest + in-transit)
-- GDPR/CCPA compliance (data deletion on request)
-
-### Data
+### Performance & Reliability
 - Backend tests: 70%+ coverage
-- All data persisted to PostgreSQL
-- Automated Alembic migrations for schema changes
-- No mock data in production
+- API latency: <200ms for 95th percentile (patent search: <500ms due to DB lookups)
+- Database: PostgreSQL with vector store extension (pgvector) for embeddings
+- Caching: Redis for patent embeddings, search results
+- Uptime: 99.5% SLA for free tier, 99.9% for paid
 
-### Frontend
-- Responsive design (mobile, tablet, desktop)
-- Tailwind CSS + shadcn/ui components
+### Security & Compliance
+- OAuth 2.0 / SAML for enterprise SSO
+- Data encryption at rest (AES-256) and in transit (TLS 1.3)
+- HIPAA/SOC 2 compliance roadmap for v1.3
+- Audit logs: All patent/docket changes tracked with user + timestamp
+- Rate limiting: 100 API calls/min for free tier, 1000/min for paid
+
+### Frontend & UX
+- Responsive design (mobile-friendly for docket checks)
+- Tailwind + shadcn/ui components
+- Accessibility: WCAG 2.1 AA compliance
 - Dark mode support
-- Keyboard navigation (accessibility)
 
-### Deployment
-- Docker Compose for local dev + CI
-- Helm chart for Kubernetes
-- GitHub Actions CI/CD (run tests on every push)
-- Zero-downtime deployments
-
----
-
-## Success Metrics (v1.0 Demo Day)
-
-| Metric | Target | Why |
-|--------|--------|-----|
-| **User Onboarding** | <2 min to first search | UX simplicity vs. incumbents |
-| **Search Accuracy** | >85% relevant results | Core differentiation |
-| **Time Saved** | 10x faster than manual (3 days → 2 hours) | Value proposition |
-| **Retention** | 70%+ MRR in first 3 months | Product-market fit signal |
-| **Pricing** | $500–$2k/mo (vs. $50k/mo incumbents) | Competitive advantage |
-
----
-
-## Competitive Positioning
-
-**vs. AnAqua:** Full-featured but expensive ($500k+/yr), enterprise-focused  
-→ DClaw: Start with search + predictions, 100x cheaper, SME-focused
-
-**vs. PatSnap:** Strong analytics, but steep learning curve  
-→ DClaw: Simpler UX, faster onboarding, focus on in-house counsel
-
-**vs. Google Patents:** Free but no AI, keyword-only search  
-→ DClaw: Semantic search, predictions, docketing (all in one)
-
----
-
-## Out of Scope (v1.0)
-
-- Patent valuation estimates
-- Auto-generated technical drawings
-- Multimodal search (images, diagrams) — P2
-- License marketplace
-- Disclosure workflow (too enterprise, too slow to build)
-- Integration with law firm case management systems (v2)
-
----
-
-## Links & References
-
-- [Gap Analysis](./GAP-ANALYSIS.md)
-- [Feature Roadmap v1.2–v1.3](./PLAN-v1.3.md)
-- [Backend Architecture](./backend/README.md)
-- [Frontend Component Library](./frontend/README.md)
+### Integration & Scaling
+- Docker: All services start with `docker compose up -d`
+- Kubernetes-ready Helm charts
+- Patent API integrations: USPTO PatentsView, EPO Open Patent Services, WIPO
+- Async jobs for long-running AI tasks (Celery + Redis)
+- No mock data — everything persisted to PostgreSQL + vector store
