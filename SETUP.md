@@ -1,5 +1,13 @@
 # DClaw Patent — Setup Guide
 
+**Owner:** Udai Kiran (udai.kiran@oneconvergence.com)  
+**Version:** 1.0.0  
+**Status:** ✅ Ready for Production  
+**Last Updated:** 2026-05-16  
+**Implementation:** `feat/week1-implementation`  
+
+---
+
 ## Quick Start
 
 ### Prerequisites

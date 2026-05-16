@@ -1,8 +1,14 @@
 # DClaw Patent API Documentation
 
-**Base URL:** `http://localhost:8000/api/v1`
+**Base URL:** `http://localhost:8000/api/v1`  
+**Version:** 1.0.0  
 
-**Version:** 1.0.0
+**Owner:** Udai Kiran (udai.kiran@oneconvergence.com)  
+**Status:** ✅ Complete & Deployed  
+**Last Updated:** 2026-05-16  
+**Branch:** `feat/week1-implementation`  
+
+---
 
 ---
 

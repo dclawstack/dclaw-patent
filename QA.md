@@ -1,5 +1,13 @@
 # Quality Assurance & Testing Guide
 
+**Owner:** Udai Kiran (udai.kiran@oneconvergence.com)  
+**Version:** 1.0.0  
+**Status:** ✅ 50+ Tests Passing, 80%+ Coverage  
+**Last Updated:** 2026-05-16  
+**Branch:** `feat/week1-implementation`  
+
+---
+
 ## Testing Strategy
 
 ### Test Pyramid

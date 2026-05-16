@@ -1,5 +1,15 @@
 # PRODUCT-SPEC: DClaw Patent
 
+## Document Ownership
+
+**Owner:** Udai Kiran (udai.kiran@oneconvergence.com)  
+**Status:** ✅ Approved & Under Implementation  
+**Last Updated:** 2026-05-16  
+**Implementation Branch:** `feat/week1-implementation` (25 commits)  
+**Signature:** `udai.kiran@oneconvergence.com` - MVP Features Implemented  
+
+---
+
 ## Overview
 
 **App Name:** DClaw Patent  
