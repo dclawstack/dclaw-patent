@@ -30,7 +30,7 @@ app.add_middleware(
 app.include_router(health.router, prefix="/health", tags=["health"])
 
 # Wire v1 routers
-from app.api.v1 import patents, dockets, disclosures, ai, competitor_watch, fto
+from app.api.v1 import patents, dockets, disclosures, ai, competitor_watch, fto, collaboration, landscape
 
 app.include_router(patents.router, prefix="/api/v1")
 app.include_router(dockets.router, prefix="/api/v1")
@@ -38,3 +38,5 @@ app.include_router(disclosures.router, prefix="/api/v1")
 app.include_router(ai.router, prefix="/api/v1")
 app.include_router(competitor_watch.router, prefix="/api/v1")
 app.include_router(fto.router, prefix="/api/v1")
+app.include_router(collaboration.router, prefix="/api/v1")
+app.include_router(landscape.router, prefix="/api/v1")
