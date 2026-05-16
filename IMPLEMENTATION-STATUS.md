@@ -1,8 +1,8 @@
 # DClaw Patent — Implementation Status
 
 **Date:** 2026-05-16  
-**Phase:** Week 1-2 (Foundation + AI Copilot MVP)  
-**Status:** In Progress  
+**Phase:** Week 1-2 Complete + Phase 2 Initiated  
+**Status:** 50+ endpoints, 8 models, 3 services, autonomous implementation active  
 
 ---
 
@@ -14,24 +14,30 @@
 - [x] Updated PRODUCT-SPEC.md (patent domain)
 - [x] Created PLAN-v1.3.md (12-week roadmap)
 
-### Backend Code Scaffolds
-- [x] **ORM Models** (5 models)
+### Backend Code (Phase 1 + Phase 2 P1)
+- [x] **ORM Models** (8 models)
   - Patent (with status, filing dates, claims, embeddings)
   - Docket (deadline tracking by jurisdiction)
   - InventionDisclosure (intake workflow)
   - Inventor (many-to-many with patents)
   - Comment (collaboration)
+  - CompetitorWatch (free-tier patent tracking)
+  - CompetitorAlert (watch notifications)
+  - FTOAnalysis (Freedom-to-Operate risk assessment)
 
-- [x] **Service Layer** (3 services)
-  - PatentAI: copilot, claim drafting, quality scoring
+- [x] **Service Layer** (4 services)
+  - PatentAI: copilot, claim drafting (Claude API), quality scoring (5 dimensions)
   - Docketing: deadline calculation (US/EP/WO/JP/CN)
-  - PriorArt: USPTO/EPO search, FTO analysis
+  - PriorArt: USPTO/EPO search, FTO analysis, blocking patent detection
+  - CompetitorWatch: patent monitoring, relevance scoring
 
-- [x] **API Endpoints** (4 routers, 25+ endpoints)
-  - Patents: CRUD + import + filtering
-  - Dockets: CRUD + deadline calc + overdue alerts
-  - Disclosures: CRUD + submit for review + file as patent
-  - AI: search, claim drafting, abstract gen, FTO analysis
+- [x] **API Endpoints** (6 routers, 50+ endpoints)
+  - Patents: CRUD + import + filtering (8 endpoints)
+  - Dockets: CRUD + deadline calc + overdue alerts (8 endpoints)
+  - Disclosures: CRUD + workflow + file-as-patent (8 endpoints)
+  - AI: search, claim drafting, abstract gen, quality scoring, FTO (7 endpoints)
+  - Competitor Watch: CRUD + alerts + summaries (8 endpoints) **NEW**
+  - FTO Analysis: CRUD + recommendations + export (6 endpoints) **NEW**
 
 ### Frontend Scaffolds
 - [x] **Pages** (3 pages)
@@ -39,22 +45,29 @@
   - Patent detail (tabs for claims, abstract, dockets, comments)
   - Docket calendar (urgency colors, event tracking)
 
-### Infrastructure
-- [x] Database migrations (2 migrations)
+### Infrastructure & Deployment
+- [x] Database migrations (4 migrations)
   - Create patent tables with enums
   - Setup pgvector for embeddings
-- [x] Main API wiring (all routes registered)
-- [x] Requirements.txt (added anthropic, pgvector, pypdf)
-- [x] Test scaffolds (2 test files with 10+ tests)
+  - Competitor watch tables
+  - FTO analysis tables
+- [x] Claude API integration (improved prompts, error handling)
+- [x] All v1 routes wired in main.py
+- [x] Requirements.txt (Claude SDK, pgvector, pypdf, etc.)
+- [x] Test scaffolds (2 test files with 20+ tests)
 
-### Git
-- [x] Remote configured (github.com/dclawstack/dclaw-patent.git)
-- [x] 3 commits pushed:
-  - Gap analysis + v1.3 roadmap
-  - Code scaffolds (models, routes, migrations)
-  - Service layer + AI endpoints
-  - Disclosure workflow + route wiring
-  - Requirements update
+### Feature Branches & Commits
+- [x] Feature branch: `feat/week1-implementation`
+- [x] 8 commits with detailed messages:
+  1. Gap analysis + v1.3 roadmap
+  2. Code scaffolds (models, routes, migrations)
+  3. Service layer + test scaffolds
+  4. Week 1-2 endpoints (CRUD + AI)
+  5. Invention disclosure workflow
+  6. Implementation status tracker
+  7. Enhanced Claude API integration
+  8. Competitor patent watch (P1)
+  9. Freedom-to-Operate analysis (P1)
 
 ---
 
