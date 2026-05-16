@@ -1,5 +1,8 @@
 # DClaw Patent — v1.2 Feature Roadmap
 
+> 📘 **REVISED PRD v2.3 available:** See `REVISED-PRD.md` for complete gap analysis, current state, and full feature roadmap.
+
+
 > Based on: Y Combinator vertical SaaS principles, trending GitHub repos (patent-analysis-tools), AI product research (Anaqua, CPA Global, PatSnap, Cipher)
 
 ## Pre-Flight Checklist
