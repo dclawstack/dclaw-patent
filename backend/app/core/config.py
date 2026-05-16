@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     app_env: str = "dev"
     debug: bool = True
 
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_app"
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_patent"
 
     secret_key: str = "change-me-in-production"
     access_token_expire_minutes: int = 60
