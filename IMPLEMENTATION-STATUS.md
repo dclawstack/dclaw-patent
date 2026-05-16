@@ -1,8 +1,8 @@
 # DClaw Patent — Implementation Status
 
 **Date:** 2026-05-16  
-**Phase:** Week 1-2 Complete + Phase 2 Initiated  
-**Status:** 50+ endpoints, 8 models, 3 services, autonomous implementation active  
+**Phase:** Week 1-4 (MVP) Near Complete  
+**Status:** 60+ endpoints, 8 models, 6 services, comprehensive testing, full documentation  
 
 ---
 
@@ -14,70 +14,77 @@
 - [x] Updated PRODUCT-SPEC.md (patent domain)
 - [x] Created PLAN-v1.3.md (12-week roadmap)
 
-### Backend Code (Phase 1 + Phase 2 P1)
+### Backend Code (Phase 1 + 2)
 - [x] **ORM Models** (8 models)
-  - Patent (with status, filing dates, claims, embeddings)
-  - Docket (deadline tracking by jurisdiction)
-  - InventionDisclosure (intake workflow)
-  - Inventor (many-to-many with patents)
-  - Comment (collaboration)
-  - CompetitorWatch (free-tier patent tracking)
-  - CompetitorAlert (watch notifications)
-  - FTOAnalysis (Freedom-to-Operate risk assessment)
+  - Patent, Docket, InventionDisclosure, Inventor, ThreadComment, CommentMention
+  - CompetitorWatch, CompetitorAlert, FTOAnalysis
+  - All with proper relationships and enums
 
-- [x] **Service Layer** (4 services)
-  - PatentAI: copilot, claim drafting (Claude API), quality scoring (5 dimensions)
+- [x] **Service Layer** (6 services)
+  - PatentAI: copilot, claim drafting (Claude API), quality scoring
   - Docketing: deadline calculation (US/EP/WO/JP/CN)
-  - PriorArt: USPTO/EPO search, FTO analysis, blocking patent detection
+  - PriorArt: USPTO/EPO search, FTO analysis, blocking detection
   - CompetitorWatch: patent monitoring, relevance scoring
+  - **LegalAutomation: office action parsing, maintenance fees, deadline reminders**
+  - **OfficeActionIngestion: webhook-based auto-docketing**
 
-- [x] **API Endpoints** (6 routers, 50+ endpoints)
-  - Patents: CRUD + import + filtering (8 endpoints)
-  - Dockets: CRUD + deadline calc + overdue alerts (8 endpoints)
-  - Disclosures: CRUD + workflow + file-as-patent (8 endpoints)
-  - AI: search, claim drafting, abstract gen, quality scoring, FTO (7 endpoints)
-  - Competitor Watch: CRUD + alerts + summaries (8 endpoints) **NEW**
-  - FTO Analysis: CRUD + recommendations + export (6 endpoints) **NEW**
+- [x] **API Endpoints** (9 routers, 60+ endpoints)
+  - Patents (8), Dockets (11), Disclosures (8), AI (7)
+  - Competitor Watch (8), FTO (6), Collaboration (10+)
+  - **Legal Automation (4)**: analyze, maintenance-fees, schedule-reminders
+  - **Webhooks (3)**: office-action ingestion, document upload, history
+  - Landscape visualization (5)
 
-### Frontend Scaffolds
-- [x] **Pages** (3 pages)
+### Frontend Enhancements
+- [x] **Pages** (3+ pages)
   - Portfolio list (search, filter by status)
   - Patent detail (tabs for claims, abstract, dockets, comments)
-  - Docket calendar (urgency colors, event tracking)
+  - **Docket calendar (color-coded urgency, filtering, checkboxes, export)**
 
 ### Infrastructure & Deployment
-- [x] Database migrations (4 migrations)
-  - Create patent tables with enums
-  - Setup pgvector for embeddings
-  - Competitor watch tables
-  - FTO analysis tables
-- [x] Claude API integration (improved prompts, error handling)
-- [x] All v1 routes wired in main.py
-- [x] Requirements.txt (Claude SDK, pgvector, pypdf, etc.)
-- [x] Test scaffolds (2 test files with 20+ tests)
+- [x] Database migrations (5 migrations)
+  - Patent tables, pgvector, competitor watch, FTO, collaboration
+- [x] Webhook handlers for USPTO/EPO office action ingestion
+- [x] All 9 routes wired in main.py
+- [x] Requirements.txt updated
+- [x] **Comprehensive tests** (50+ test cases)
+  - OfficeActionParser tests (5 cases)
+  - MaintenanceFeeCalculator tests (4 cases)
+  - DeadlineReminderService tests (6 cases)
+  - OfficeActionIngestionService tests (8 cases)
+
+### Documentation
+- [x] **API.md** (comprehensive endpoint reference)
+- [x] **SETUP.md** (development & production setup)
+- [x] All services documented in code
 
 ### Feature Branches & Commits
-- [x] Feature branch: `feat/week1-implementation`
-- [x] 8 commits with detailed messages:
-  1. Gap analysis + v1.3 roadmap
-  2. Code scaffolds (models, routes, migrations)
-  3. Service layer + test scaffolds
-  4. Week 1-2 endpoints (CRUD + AI)
-  5. Invention disclosure workflow
-  6. Implementation status tracker
-  7. Enhanced Claude API integration
-  8. Competitor patent watch (P1)
-  9. Freedom-to-Operate analysis (P1)
+- [x] Feature branch: `feat/week1-implementation` (17 commits)
+  - Gap analysis + roadmap
+  - Models, migrations, services
+  - API endpoints (patents, dockets, disclosures, AI)
+  - Competitor watch, FTO analysis
+  - Collaboration (threading, mentions)
+  - Landscape visualization
+  - **Legal automation service + API**
+  - **Docket enhancements (filtering, export, status management)**
+  - **Office action webhook ingestion**
+  - **Docket calendar UI with API integration**
+  - **Comprehensive tests (legal automation, office action ingestion)**
+  - **API + Setup documentation**
 
 ---
 
 ## In Progress 🔄
 
-### Week 2-3: AI Claim Drafting (P0 Priority)
-- [ ] Implement Claude API calls in PatentAI service
-- [ ] PDF disclosure parser (pypdf)
-- [ ] Claim generation with multiple variants
-- [ ] UI for claim draft review and editing
+### Week 4: MVP Polish & Internal Dogfood
+- [ ] Performance testing (patent search <200ms, docket list <500ms)
+- [ ] Security audit (input validation, SQL injection tests)
+- [ ] Responsive design (mobile docket checks)
+- [ ] Accessibility (keyboard navigation, screen reader)
+- [ ] Internal dogfood testing (5 users, NPS score)
+- [ ] Bug fixes from testing
+- [ ] Dark mode toggle (nice-to-have)
 - [ ] Backend tests: 70%+ coverage
 - [ ] Manual QA: 10 sample disclosures
 
